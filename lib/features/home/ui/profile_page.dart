@@ -1,18 +1,21 @@
+import 'dart:developer';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:face_book_clone/core/colors/app_colors.dart';
 import 'package:face_book_clone/features/auth/model/user_model.dart';
-import 'package:face_book_clone/features/auth/register/data/register_cubit/cubit/auh_cubit.dart';
-import 'package:face_book_clone/features/auth/register/logic/repos/register_repo_impl.dart';
-import 'package:face_book_clone/features/home/logic/cubit/home_cubit.dart';
+import 'package:face_book_clone/features/auth/register/data/cubit/auth_cubit/auh_cubit.dart';
+import 'package:face_book_clone/features/auth/register/logic/repos/auth_repo/register_repo_impl.dart';
+import 'package:face_book_clone/features/home/logic/cubit/home_cubit/home_cubit.dart';
 import 'package:face_book_clone/features/home/ui/edit_user.dart';
 import 'package:face_book_clone/features/home/ui/widgts/post_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
-import 'package:image_stack/image_stack.dart';
+import '../data/repos/follow_repo/follow_repo_impl.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  final String targetUid;
+  const ProfilePage({super.key, required this.targetUid});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -22,35 +25,41 @@ class _ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
   late TabController _tabController;
   UserModel? userData;
+  late FollowRepositoryImpl followRepository;
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this); // 👈 أهم جزء
+    _tabController = TabController(length: 2, vsync: this);
+    followRepository = FollowRepositoryImpl(FirebaseFirestore.instance);
     _loadCurrentUser();
   }
 
   @override
   void dispose() {
-    _tabController.dispose(); // 👈 تنظيف مهم
+    _tabController.dispose();
     super.dispose();
   }
 
   void _loadCurrentUser() async {
-    final uid = FirebaseAuth.instance.currentUser!.uid;
-    final result = await AuthRepositoryImpl().getUserData(uid);
-
-    result.fold(
-      (failure) => print("Error fetching user: ${failure.message}"),
-      (user) => setState(() {
+    final result = await AuthRepositoryImpl().getUserData(widget.targetUid);
+    result.fold((failure) => print("Error fetching user: ${failure.message}"), (
+      user,
+    ) {
+      setState(() {
         userData = user;
-      }),
-    );
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    HomeCubit cubit = context.read<HomeCubit>();
+    final currentUid = FirebaseAuth.instance.currentUser!.uid;
+    final homeCubit = context.read<HomeCubit>();
+
     return Scaffold(
+      backgroundColor: Colors.white,
+
       appBar: AppBar(
         actions: [
           IconButton(
@@ -66,8 +75,7 @@ class _ProfilePageState extends State<ProfilePage>
                   ),
                 );
               } else {
-                print("user data is null");
-                Text("user data is null");
+                log("user data is null");
               }
             },
             icon: Icon(Icons.edit),
@@ -84,80 +92,54 @@ class _ProfilePageState extends State<ProfilePage>
         padding: EdgeInsets.all(12),
         child: Column(
           children: [
+            // PROFILE HEADER
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // PROFILE IMAGE
                 CircleAvatar(
                   radius: 40,
                   backgroundImage: AssetImage('assets/images/man.png'),
                 ),
-
                 Gap(20),
-
-                // FOLLOWERS + FOLLOWING
                 Expanded(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // FOLLOWERS
-                      Container(
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: kWhiteColor,
-                          borderRadius: BorderRadius.circular(12),
+                      // FOLLOWERS COUNT
+                      StreamBuilder<int>(
+                        stream: followRepository.followersCount(
+                          widget.targetUid,
                         ),
-                        child: Column(
-                          children: [
-                            ImageStack(
-                              imageSource: ImageSource.Asset,
-                              imageList: [
-                                'assets/images/man.png',
-                                'assets/images/woman.png',
-                              ],
-                              totalCount: 2,
-                              imageRadius: 25,
-                              imageBorderWidth: 2,
-                              imageBorderColor: Colors.white,
-                            ),
-                            Gap(5),
-                            Text(
-                              "Followers",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            Text("120"),
-                          ],
-                        ),
+                        builder: (context, snapshot) {
+                          final followers = snapshot.data ?? 0;
+                          return Column(
+                            children: [
+                              Text(
+                                "Followers",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              Text("$followers"),
+                            ],
+                          );
+                        },
                       ),
-
-                      // FOLLOWING
-                      Container(
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: kWhiteColor,
-                          borderRadius: BorderRadius.circular(12),
+                      // FOLLOWING COUNT
+                      StreamBuilder<int>(
+                        stream: followRepository.followingCount(
+                          widget.targetUid,
                         ),
-                        child: Column(
-                          children: [
-                            ImageStack(
-                              imageSource: ImageSource.Asset,
-                              imageList: [
-                                'assets/images/man.png',
-                                'assets/images/woman.png',
-                              ],
-                              totalCount: 2,
-                              imageRadius: 25,
-                              imageBorderWidth: 2,
-                              imageBorderColor: Colors.white,
-                            ),
-                            Gap(5),
-                            Text(
-                              "Following",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            Text("50"),
-                          ],
-                        ),
+                        builder: (context, snapshot) {
+                          final following = snapshot.data ?? 0;
+                          return Column(
+                            children: [
+                              Text(
+                                "Following",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              Text("$following"),
+                            ],
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -177,34 +159,43 @@ class _ProfilePageState extends State<ProfilePage>
                     subtitle: Text('@${userData?.username ?? ''}'),
                   ),
                 ),
-                Row(
-                  children: [
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: kWhiteColor,
-                        backgroundColor: kSeconderyColor,
-                      ),
-                      onPressed: () {},
-                      child: Row(
-                        children: [
-                          Text("UnFollow"),
-                          Gap(2),
-                          Icon(Icons.remove),
-                        ],
-                      ),
+                // FOLLOW/UNFOLLOW BUTTON
+                StreamBuilder<bool>(
+                  stream: followRepository.isFollowingStream(
+                    currentUid: currentUid,
+                    targetUid: widget.targetUid,
+                  ),
+                  builder: (context, snapshot) {
+                    bool isFollowing = snapshot.data ?? false;
+
+                    return ElevatedButton(
+                      onPressed: () async {
+                        if (isFollowing) {
+                          await followRepository.unFollowUser(
+                            currentUid: currentUid,
+                            targetUid: widget.targetUid,
+                          );
+                        } else {
+                          await followRepository.followUser(
+                            currentUid: currentUid,
+                            targetUid: widget.targetUid,
+                          );
+                        }
+                      },
+                      child: Text(isFollowing ? "Unfollow" : "Follow"),
+                    );
+                  },
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shape: CircleBorder(
+                      side: BorderSide(color: kSeconderyColor),
                     ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        shape: CircleBorder(
-                          side: BorderSide(color: kSeconderyColor),
-                        ),
-                        foregroundColor: kSeconderyColor,
-                        backgroundColor: Colors.white,
-                      ),
-                      onPressed: () {},
-                      child: Icon(Icons.message),
-                    ),
-                  ],
+                    foregroundColor: kSeconderyColor,
+                    backgroundColor: Colors.white,
+                  ),
+                  onPressed: () {},
+                  child: Icon(Icons.message),
                 ),
               ],
             ),
@@ -220,7 +211,7 @@ class _ProfilePageState extends State<ProfilePage>
                     ),
                     child: Center(
                       child: Text(
-                        "bio",
+                        userData?.bio ?? "bio",
                         style: TextStyle(color: kPrimaryColor, fontSize: 16),
                       ),
                     ),
@@ -229,8 +220,6 @@ class _ProfilePageState extends State<ProfilePage>
               ],
             ),
             Gap(10),
-
-            // ---------------------- TAB BAR ----------------------
             TabBar(
               controller: _tabController,
               tabs: [
@@ -238,10 +227,7 @@ class _ProfilePageState extends State<ProfilePage>
                 Tab(text: "Posts"),
               ],
             ),
-
             Gap(20),
-
-            // ---------------------- TAB VIEW ----------------------
             Expanded(
               child: TabBarView(
                 controller: _tabController,
@@ -266,10 +252,8 @@ class _ProfilePageState extends State<ProfilePage>
                       );
                     },
                   ),
-
-                  // POSTS CARD LIST
                   StreamBuilder(
-                    stream: cubit.postsStream,
+                    stream: homeCubit.postsStream,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(child: CircularProgressIndicator());
@@ -281,7 +265,7 @@ class _ProfilePageState extends State<ProfilePage>
                           itemCount: posts.length,
                           itemBuilder: (context, index) {
                             final post = posts[index];
-                            return PostCard(post: post);
+                            return PostCard(post: post, currentUid: currentUid);
                           },
                         );
                       } else {

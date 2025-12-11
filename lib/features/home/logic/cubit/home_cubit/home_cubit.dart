@@ -3,12 +3,10 @@ import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
-import 'package:equatable/equatable.dart';
 import 'package:face_book_clone/core/failure/failure.dart';
 import 'package:face_book_clone/features/home/data/home_model/home_model.dart';
-import 'package:face_book_clone/features/home/data/home_repo/home_repo.dart';
-
-part 'home_state.dart';
+import 'package:face_book_clone/features/home/data/home_repo/home_repo/home_repo.dart';
+import 'package:face_book_clone/features/home/logic/cubit/home_cubit/home_states.dart';
 
 class HomeCubit extends Cubit<HomeState> {
   final HomeRepo homeRepo;

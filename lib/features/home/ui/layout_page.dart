@@ -3,6 +3,7 @@ import 'package:face_book_clone/features/home/ui/add_page.dart';
 import 'package:face_book_clone/features/home/ui/home_page.dart';
 import 'package:face_book_clone/features/home/ui/profile_page.dart';
 import 'package:face_book_clone/features/home/ui/search_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LayoutPage extends StatefulWidget {
@@ -23,7 +24,12 @@ class _LayoutPageState extends State<LayoutPage> {
       extendBody: true,
       body: PageView(
         controller: pageCon,
-        children: [HomePage(), AddPage(), SearchPostsPage(), ProfilePage()],
+        children: [
+          HomePage(),
+          AddPage(),
+          SearchPostsPage(),
+          ProfilePage(targetUid: FirebaseAuth.instance.currentUser!.uid),
+        ],
         onPageChanged: (value) => setState(() {
           currentIndex = value;
         }),

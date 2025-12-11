@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:face_book_clone/features/auth/model/user_model.dart';
-import 'package:face_book_clone/features/auth/register/logic/repos/register_repo.dart';
+import 'package:face_book_clone/features/auth/register/logic/repos/auth_repo/register_repo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:dartz/dartz.dart';
 
@@ -103,7 +103,8 @@ class AuthRepositoryImpl implements AuthRepository {
         return Left(AuthFailure("User not found"));
       }
 
-      final userModel = UserModel.fromJson(snapshot.data()!);
+      final data = snapshot.data()?.cast<String, dynamic>() ?? {};
+      final userModel = UserModel.fromJson(data);
 
       return Right(userModel);
     } catch (e) {

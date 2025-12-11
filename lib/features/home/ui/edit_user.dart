@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'package:face_book_clone/core/colors/app_colors.dart';
 import 'package:face_book_clone/features/auth/model/user_model.dart';
-import 'package:face_book_clone/features/auth/register/data/register_cubit/cubit/auh_cubit.dart';
+import 'package:face_book_clone/features/auth/register/data/cubit/auth_cubit/auh_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 

@@ -7,8 +7,8 @@ class UserModel {
   String username;
   String bio;
   String profilePic;
-  List followers;
-  List following;
+  List<dynamic> followers;
+  List<dynamic> following;
 
   UserModel({
     required this.uid,
@@ -21,19 +21,24 @@ class UserModel {
     required this.following,
   });
 
+  // ===================== From Firestore DocumentSnapshot =====================
   factory UserModel.fromSnap(DocumentSnapshot snap) {
-    var snapshot = snap.data() as Map<String, dynamic>;
+    final snapshot =
+        (snap.data() as Map<dynamic, dynamic>?)?.cast<String, dynamic>() ?? {};
+
     return UserModel(
-      uid: snapshot["uid"],
-      email: snapshot["email"],
-      displayName: snapshot["displayName"],
-      username: snapshot["username"],
-      bio: snapshot["bio"],
-      profilePic: snapshot["profilePic"],
-      followers: snapshot["followers"],
-      following: snapshot["following"],
+      uid: snapshot["uid"] ?? "",
+      email: snapshot["email"] ?? "",
+      displayName: snapshot["displayName"] ?? "",
+      username: snapshot["username"] ?? "",
+      bio: snapshot["bio"] ?? "",
+      profilePic: snapshot["profilePic"] ?? "",
+      followers: snapshot["followers"] ?? [],
+      following: snapshot["following"] ?? [],
     );
   }
+
+  // ===================== To JSON for Firestore =====================
   Map<String, dynamic> toJson() => {
     "uid": uid,
     "email": email,
@@ -45,16 +50,19 @@ class UserModel {
     "following": following,
   };
 
+  // ===================== From generic Map (JSON / API) =====================
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    final map = Map<String, dynamic>.from(json);
+
     return UserModel(
-      uid: json["uid"] ?? "",
-      email: json["email"] ?? "",
-      displayName: json["displayName"] ?? "",
-      username: json["username"] ?? "",
-      bio: json["bio"] ?? "",
-      profilePic: json["profilePic"] ?? "",
-      followers: json["followers"] ?? [],
-      following: json["following"] ?? [],
+      uid: map["uid"] ?? "",
+      email: map["email"] ?? "",
+      displayName: map["displayName"] ?? "",
+      username: map["username"] ?? "",
+      bio: map["bio"] ?? "",
+      profilePic: map["profilePic"] ?? "",
+      followers: map["followers"] ?? [],
+      following: map["following"] ?? [],
     );
   }
 }

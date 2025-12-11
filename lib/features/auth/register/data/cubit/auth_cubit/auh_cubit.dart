@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:face_book_clone/features/auth/model/user_model.dart';
-import 'package:face_book_clone/features/auth/register/logic/repos/register_repo.dart';
+import 'package:face_book_clone/features/auth/register/logic/repos/auth_repo/register_repo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 part 'auth_state.dart';

@@ -1,6 +1,6 @@
 import 'package:face_book_clone/core/colors/app_colors.dart';
 import 'package:face_book_clone/core/routes/routes.dart';
-import 'package:face_book_clone/features/auth/register/data/register_cubit/cubit/auh_cubit.dart';
+import 'package:face_book_clone/features/auth/register/data/cubit/auth_cubit/auh_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';

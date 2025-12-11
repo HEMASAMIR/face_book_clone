@@ -1,4 +1,6 @@
-part of 'home_cubit.dart';
+import 'package:equatable/equatable.dart';
+import 'package:face_book_clone/core/failure/failure.dart';
+import 'package:face_book_clone/features/home/data/home_model/home_model.dart';
 
 class HomeState extends Equatable {
   const HomeState();

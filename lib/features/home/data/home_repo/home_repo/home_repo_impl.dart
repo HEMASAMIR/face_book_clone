@@ -4,11 +4,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:face_book_clone/core/failure/failure.dart';
 import 'package:face_book_clone/features/home/data/home_model/home_model.dart';
+import 'package:face_book_clone/features/home/data/home_repo/home_repo/home_repo.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'home_repo.dart';
 import 'package:dio/dio.dart';
 
 class HomeRepoImpl implements HomeRepo {

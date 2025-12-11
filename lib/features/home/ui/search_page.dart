@@ -1,5 +1,7 @@
-import 'package:face_book_clone/features/home/logic/cubit/home_cubit.dart';
+import 'package:face_book_clone/features/home/logic/cubit/home_cubit/home_cubit.dart';
+import 'package:face_book_clone/features/home/logic/cubit/home_cubit/home_states.dart';
 import 'package:face_book_clone/features/home/ui/widgts/post_card.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -41,7 +43,10 @@ class SearchPostsPage extends StatelessWidget {
                     itemCount: state.posts.length,
                     itemBuilder: (context, index) {
                       final post = state.posts[index];
-                      return PostCard(post: post);
+                      return PostCard(
+                        post: post,
+                        currentUid: FirebaseAuth.instance.currentUser!.uid,
+                      );
                     },
                   );
                 } else if (state is SearchFailure) {

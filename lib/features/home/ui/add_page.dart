@@ -1,7 +1,8 @@
 import 'dart:io';
 import 'package:face_book_clone/core/colors/app_colors.dart';
 import 'package:face_book_clone/features/home/data/home_model/home_model.dart';
-import 'package:face_book_clone/features/home/logic/cubit/home_cubit.dart';
+import 'package:face_book_clone/features/home/logic/cubit/home_cubit/home_cubit.dart';
+import 'package:face_book_clone/features/home/logic/cubit/home_cubit/home_states.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

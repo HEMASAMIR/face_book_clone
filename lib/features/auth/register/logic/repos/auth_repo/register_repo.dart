@@ -18,10 +18,11 @@ abstract class AuthRepository {
   Future<void> logout();
 
   User? getCurrentUser();
+
   Future<Either<AuthFailure, UserModel>> getUserData(String uid);
+
   Future<Either<AuthFailure, Unit>> addUserData(UserModel user);
 
-  //PROFILE REPO
   Future<Either<AuthFailure, Unit>> updateUserData(UserModel user);
 }
 
