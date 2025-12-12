@@ -6,7 +6,8 @@ This project implements a scalable architecture and best practices for building 
 
 ---
 ## 🚀 Project sturucure : 
-![Uploading ChatGPT Image Dec 12, 2025, 07_26_41 AM.png…]()
+
+![Uploading proj_strucure.png…]()
 
 ## 🚀 Features
 
@@ -116,13 +117,6 @@ We use **Repository Pattern** to separate **data handling** from **UI**:
 1. Clone the repo:
    ```bash
    git clone <your_repo_url>
-
-
-
-
-
-
-
 
 ![WhatsApp Image 2025-12-12 at 7 13 08 AM (4)](https://github.com/user-attachments/assets/5bed1999-8857-473f-ba7f-b6edc51ffe7d)
 ![WhatsApp Image 2025-12-12 at 7 13 08 AM (3)](https://github.com/user-attachments/assets/07bc9ef5-7ee8-47c5-ad63-6a0a39586fac)
