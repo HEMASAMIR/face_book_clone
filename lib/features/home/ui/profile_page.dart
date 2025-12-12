@@ -82,7 +82,7 @@ class _ProfilePageState extends State<ProfilePage>
           ),
           IconButton(
             onPressed: () async {
-              await FirebaseAuth.instance.signOut();
+              await context.read<AuthCubit>().logout();
             },
             icon: Icon(Icons.logout),
           ),
@@ -265,7 +265,10 @@ class _ProfilePageState extends State<ProfilePage>
                           itemCount: posts.length,
                           itemBuilder: (context, index) {
                             final post = posts[index];
-                            return PostCard(post: post, currentUid: currentUid);
+                            return PostCard(
+                              post: post,
+                              currentUid: currentUid ?? '',
+                            );
                           },
                         );
                       } else {

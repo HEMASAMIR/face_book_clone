@@ -1,20 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
-import 'package:face_book_clone/features/home/data/home_repo/stories_repo/stories_repo_impl.dart';
 import 'likes_repo.dart';
 
 class LikesRepositoryImpl implements LikesRepository {
   final FirebaseFirestore firestore;
 
-  LikesRepositoryImpl(
-    this.firestore,
-    StoriesRepositoryImpl storiesRepositoryImpl,
-  );
+  LikesRepositoryImpl(this.firestore);
 
   @override
   Stream<List<String>> likesStream(String postId) {
     return firestore.collection('posts').doc(postId).snapshots().map((snap) {
-      final data = snap.data() as Map<String, dynamic>? ?? {};
+      final data = snap.data() ?? {};
       final likes = List<String>.from(data['likes'] ?? []);
       return likes;
     });
@@ -29,7 +25,7 @@ class LikesRepositoryImpl implements LikesRepository {
       final docRef = firestore.collection('posts').doc(postId);
       await firestore.runTransaction((transaction) async {
         final snapshot = await transaction.get(docRef);
-        final data = snapshot.data() as Map<String, dynamic>? ?? {};
+        final data = snapshot.data() ?? {};
         final likes = List<String>.from(data['likes'] ?? []);
         if (!likes.contains(uid)) {
           likes.add(uid);
@@ -51,7 +47,7 @@ class LikesRepositoryImpl implements LikesRepository {
       final docRef = firestore.collection('posts').doc(postId);
       await firestore.runTransaction((transaction) async {
         final snapshot = await transaction.get(docRef);
-        final data = snapshot.data() as Map<String, dynamic>? ?? {};
+        final data = snapshot.data() ?? {};
         final likes = List<String>.from(data['likes'] ?? []);
         likes.remove(uid);
         transaction.update(docRef, {'likes': likes});

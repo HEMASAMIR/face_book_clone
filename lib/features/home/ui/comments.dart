@@ -3,7 +3,6 @@ import 'package:face_book_clone/core/colors/app_colors.dart';
 import 'package:face_book_clone/core/routes/routes.dart';
 import 'package:face_book_clone/features/home/data/home_repo/comments_repo/comments_repo_impl.dart';
 import 'package:face_book_clone/features/home/logic/cubit/comments_cubit/cubit/comments_cubit.dart';
-import 'package:face_book_clone/features/home/ui/layout_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -64,8 +63,9 @@ class _CommentScreenState extends State<CommentScreen> {
                 child: StreamBuilder<List<Map<String, dynamic>>>(
                   stream: commentCubit.commentsStream(widget.postId),
                   builder: (context, snapshot) {
-                    if (!snapshot.hasData)
+                    if (!snapshot.hasData) {
                       return Center(child: CircularProgressIndicator());
+                    }
                     final comments = snapshot.data!;
                     return ListView.builder(
                       itemCount: comments.length,

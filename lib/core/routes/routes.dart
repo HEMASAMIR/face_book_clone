@@ -6,4 +6,6 @@ class Routes {
   //HOME SCREEN
   static const homeScreen = '/homeScreen';
   static const editProfile = '/editProfile';
+  static const stories = '/stories';
+  static const addStory = '/addStory';
 }

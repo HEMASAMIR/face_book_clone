@@ -1,13 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:face_book_clone/core/colors/app_colors.dart';
 import 'package:face_book_clone/features/home/data/home_model/home_model.dart';
-import 'package:face_book_clone/features/home/data/home_model/story_model.dart';
 import 'package:face_book_clone/features/home/data/home_repo/stories_repo/stories_repo_impl.dart';
 import 'package:face_book_clone/features/home/logic/cubit/home_cubit/home_cubit.dart';
 import 'package:face_book_clone/features/home/logic/cubit/home_cubit/home_states.dart';
 import 'package:face_book_clone/features/home/ui/comments.dart';
 import 'package:face_book_clone/features/home/data/home_repo/likes_repo/likes_repo_impl.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
@@ -25,20 +23,21 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   late LikesRepositoryImpl likesRepositoryImpl;
-  late StoriesRepositoryImpl storiesRepositoryImpl;
-  final currentUid = FirebaseAuth.instance.currentUser!.uid;
+  // late StoriesRepositoryImpl storiesRepositoryImpl;
 
   @override
   void initState() {
     super.initState();
-    likesRepositoryImpl = LikesRepositoryImpl(
-      FirebaseFirestore.instance,
-      storiesRepositoryImpl = StoriesRepositoryImpl(FirebaseFirestore.instance),
-    );
+    likesRepositoryImpl = LikesRepositoryImpl(FirebaseFirestore.instance);
+    // storiesRepositoryImpl = StoriesRepositoryImpl(
+
+    // );
   }
 
   @override
   Widget build(BuildContext context) {
+    final likesRepo = LikesRepositoryImpl(FirebaseFirestore.instance);
+
     return Padding(
       padding: EdgeInsets.all(8),
       child: Container(
@@ -50,75 +49,9 @@ class _PostCardState extends State<PostCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 120,
-              child: StreamBuilder<List<StoryModel>>(
-                stream: storiesRepositoryImpl.storiesStream(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData)
-                    return Center(child: CircularProgressIndicator());
-
-                  final stories = snapshot.data!
-                      .where(
-                        (story) =>
-                            DateTime.now()
-                                .difference(story.createdAt)
-                                .inSeconds <
-                            30,
-                      )
-                      .toList(); // مدة 30 ثانية
-
-                  if (stories.isEmpty)
-                    return Center(child: Text("No stories yet"));
-
-                  return ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: stories.length,
-                    itemBuilder: (context, index) {
-                      final story = stories[index];
-                      final isMine = story.uid == currentUid;
-
-                      return Stack(
-                        children: [
-                          Container(
-                            margin: EdgeInsets.all(8),
-                            width: 80,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: NetworkImage(story.imageUrl),
-                              ),
-                            ),
-                          ),
-                          if (isMine)
-                            Positioned(
-                              top: 4,
-                              right: 4,
-                              child: GestureDetector(
-                                onTap: () => storiesRepositoryImpl.removeStory(
-                                  story.storyId,
-                                ),
-                                child: CircleAvatar(
-                                  radius: 12,
-                                  backgroundColor: Colors.red,
-                                  child: Icon(
-                                    Icons.close,
-                                    size: 16,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-
             // --- Profile Row ---
+            // --- Stories Row ---
+            // --- Stories Row ---
             Row(
               children: [
                 CircleAvatar(
@@ -148,7 +81,6 @@ class _PostCardState extends State<PostCard> {
               ],
             ),
             Gap(12),
-
             // --- Post Image ---
             if (widget.post.postImage.isNotEmpty)
               Container(
@@ -178,40 +110,26 @@ class _PostCardState extends State<PostCard> {
               children: [
                 // --- Likes Button ---
                 StreamBuilder<List<String>>(
-                  stream: likesRepositoryImpl.likesStream(widget.post.postId),
+                  stream: likesRepo.likesStream(widget.post.postId),
                   builder: (context, snapshot) {
                     final likes = snapshot.data ?? [];
-                    final isLiked = likes.contains(widget.currentUid);
+                    final isLiked = likes.contains(
+                      widget.currentUid,
+                    ); //important
 
                     return Row(
                       children: [
                         IconButton(
                           onPressed: () async {
-                            try {
-                              if (isLiked) {
-                                await likesRepositoryImpl.unLikePost(
-                                  postId: widget.post.postId,
-                                  uid: widget.currentUid,
-                                );
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text("You unliked this post"),
-                                  ),
-                                );
-                              } else {
-                                await likesRepositoryImpl.likePost(
-                                  postId: widget.post.postId,
-                                  uid: widget.currentUid,
-                                );
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text("You liked this post"),
-                                  ),
-                                );
-                              }
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Error: $e")),
+                            if (isLiked) {
+                              await likesRepo.unLikePost(
+                                postId: widget.post.postId,
+                                uid: widget.currentUid,
+                              );
+                            } else {
+                              await likesRepo.likePost(
+                                postId: widget.post.postId,
+                                uid: widget.currentUid,
                               );
                             }
                           },
@@ -225,6 +143,7 @@ class _PostCardState extends State<PostCard> {
                     );
                   },
                 ),
+
                 Gap(20),
 
                 // --- Comments Button ---

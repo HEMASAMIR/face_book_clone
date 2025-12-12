@@ -198,9 +198,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   children: [
                     Text("Already have an account? "),
                     GestureDetector(
-                      onTap: () => Navigator.pushAndRemoveUntil(
+                      onTap: () => Navigator.pushNamedAndRemoveUntil(
                         context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
+                        Routes.loginPage,
                         (route) => false,
                       ),
                       child: Text(
